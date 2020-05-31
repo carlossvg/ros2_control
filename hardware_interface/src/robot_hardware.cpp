@@ -76,6 +76,24 @@ RobotHardware::register_operation_mode_handle(OperationModeHandle * operation_mo
 }
 
 hardware_interface_ret_t
+RobotHardware::register_imu_sensor_handle(const ImuSensorHandle * imu_sensor_handle)
+{
+
+  auto handle_imu = std::find_if(
+      registered_imu_sensor_handles_.begin(), registered_imu_sensor_handles_.end(),
+      [&](auto imu_handle_ptr) -> bool {
+        return imu_handle_ptr->get_name() == imu_sensor_handle->get_name();
+      });
+
+  // handle exist already
+  if (handle_imu != registered_imu_sensor_handles_.end()) {
+    return HW_RET_ERROR;
+  }
+  registered_imu_sensor_handles_.push_back(imu_sensor_handle);
+  return HW_RET_OK;
+}
+
+hardware_interface_ret_t
 RobotHardware::get_joint_state_handle(
   const std::string & name, const JointStateHandle ** joint_state_handle)
 {
@@ -165,6 +183,37 @@ RobotHardware::get_operation_mode_handle(
   return HW_RET_OK;
 }
 
+
+hardware_interface_ret_t
+RobotHardware::get_imu_sensor_handle(
+    const std::string & name, const ImuSensorHandle ** imu_sensor_handle)
+{
+  if (name.empty()) {
+    RCLCPP_ERROR(
+        rclcpp::get_logger("imu sensor handle"),
+        "cannot get handle! No name given");
+    return HW_RET_ERROR;
+  }
+
+  THROW_ON_NOT_NULLPTR(*imu_sensor_handle)
+
+  auto handle_pos = std::find_if(
+      registered_imu_sensor_handles_.begin(), registered_imu_sensor_handles_.end(),
+      [&](auto imu_handle_ptr) -> bool {
+        return imu_handle_ptr->get_name() == name;
+      });
+
+  if (handle_pos == registered_imu_sensor_handles_.end()) {
+    RCLCPP_ERROR(
+        rclcpp::get_logger("imu sensor handle"),
+        "cannot get handle. No imu %s found.\n", name.c_str());
+    return HW_RET_ERROR;
+  }
+
+  *imu_sensor_handle = *handle_pos;
+  return HW_RET_OK;
+}
+
 std::vector<std::string>
 RobotHardware::get_registered_joint_names()
 {
@@ -187,6 +236,18 @@ RobotHardware::get_registered_write_op_names()
   return op_names;
 }
 
+
+std::vector<std::string>
+RobotHardware::get_registered_imu_sensor_names()
+{
+  std::vector<std::string> imu_names;
+  imu_names.reserve(registered_imu_sensor_handles_.size());
+  for (auto imu_sensor_handle : registered_imu_sensor_handles_) {
+    imu_names.push_back(imu_sensor_handle->get_name());
+  }
+  return imu_names;
+}
+
 std::vector<const JointStateHandle *>
 RobotHardware::get_registered_joint_state_handles()
 {
@@ -203,6 +264,12 @@ std::vector<OperationModeHandle *>
 RobotHardware::get_registered_operation_mode_handles()
 {
   return registered_operation_mode_handles_;
+}
+
+std::vector<const ImuSensorHandle *>
+RobotHardware::get_registered_imu_sensor_handles()
+{
+  return registered_imu_sensor_handles_;
 }
 
 }  // namespace hardware_interface
