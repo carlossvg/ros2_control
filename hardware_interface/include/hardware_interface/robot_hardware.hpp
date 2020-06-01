@@ -21,6 +21,7 @@
 #include "hardware_interface/joint_command_handle.hpp"
 #include "hardware_interface/joint_state_handle.hpp"
 #include "hardware_interface/operation_mode_handle.hpp"
+#include "hardware_interface/imu_sensor_handle.hpp"
 #include "hardware_interface/robot_hardware_interface.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "hardware_interface/visibility_control.h"
@@ -52,6 +53,10 @@ public:
 
   HARDWARE_INTERFACE_PUBLIC
   hardware_interface_ret_t
+  register_imu_sensor_handle(const ImuSensorHandle * imu_sensor_handle);
+
+  HARDWARE_INTERFACE_PUBLIC
+  hardware_interface_ret_t
   get_joint_state_handle(const std::string & name, const JointStateHandle ** joint_state_handle);
 
   HARDWARE_INTERFACE_PUBLIC
@@ -63,12 +68,20 @@ public:
   get_operation_mode_handle(const std::string & name, OperationModeHandle ** operation_mode_handle);
 
   HARDWARE_INTERFACE_PUBLIC
+  hardware_interface_ret_t
+  get_imu_sensor_handle(const std::string & name, const ImuSensorHandle ** imu_sensor_handle);
+
+  HARDWARE_INTERFACE_PUBLIC
   std::vector<std::string>
   get_registered_joint_names();
 
   HARDWARE_INTERFACE_PUBLIC
   std::vector<std::string>
   get_registered_write_op_names();
+
+  HARDWARE_INTERFACE_PUBLIC
+  std::vector<std::string>
+  get_registered_imu_sensor_names();
 
   HARDWARE_INTERFACE_PUBLIC
   std::vector<const JointStateHandle *>
@@ -82,10 +95,15 @@ public:
   std::vector<OperationModeHandle *>
   get_registered_operation_mode_handles();
 
+  HARDWARE_INTERFACE_PUBLIC
+  std::vector<const ImuSensorHandle *>
+  get_registered_imu_sensor_handles();
+
 private:
   std::vector<const JointStateHandle *> registered_joint_state_handles_;
   std::vector<JointCommandHandle *> registered_joint_command_handles_;
   std::vector<OperationModeHandle *> registered_operation_mode_handles_;
+  std::vector<const ImuSensorHandle *> registered_imu_sensor_handles_;
 };
 
 }  // namespace hardware_interface

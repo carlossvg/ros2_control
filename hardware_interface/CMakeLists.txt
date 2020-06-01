@@ -19,6 +19,7 @@ add_library(
   SHARED
   src/joint_command_handle.cpp
   src/joint_state_handle.cpp
+  src/imu_sensor_handle.cpp
   src/operation_mode_handle.cpp
   src/robot_hardware.cpp
 )
